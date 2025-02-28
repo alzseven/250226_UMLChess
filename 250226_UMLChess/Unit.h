@@ -40,3 +40,11 @@ public:
 
 	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
 };
+
+class King : public Unit
+{
+public:
+	King(std::string name, char symbol, Team team, int x, int y);
+
+	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
+};

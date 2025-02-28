@@ -133,3 +133,20 @@ bool Knight::CanMove(int x, int y, Board* chessBoard)
 	//다 못가면 못감
 	return false;
 }
+
+/*
+	King
+*/
+King::King(std::string name, char symbol, Team team, int x, int y)
+	: Unit(name, symbol, team, x, y)
+{
+}
+
+bool King::CanMove(int x, int y, Board* chessBoard)
+{
+	if (GetX() - x == 1)
+	{
+
+	}
+	return true;
+}

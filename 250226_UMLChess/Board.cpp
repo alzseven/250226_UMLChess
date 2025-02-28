@@ -1,33 +1,45 @@
 #include "Board.h"
 #include "Unit.h"
-void Board::Init()
+#include "Units.h"
+
+void Board::Init(ChessSaveData data, bool canReadable)
 {
 	Units = new Unit * [UNIT_SIZE];
 
-	Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
-	Units[1] = new Unit("Knight", 'N', Team::BLACK, 1, 0);
-	Units[2] = new Unit("Bishop", 'B', Team::BLACK, 2, 0);
-	Units[3] = new Unit("Queen", 'Q', Team::BLACK, 3, 0);
-	Units[4] = new Unit("King", 'K', Team::BLACK, 4, 0);
-	Units[5] = new Unit("Bishop", 'B', Team::BLACK, 5, 0);
-	Units[6] = new Unit("Knight", 'N', Team::BLACK, 6, 0);
-	Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
+	if (canReadable)
+	{
+		for (int i = 0; i < UNIT_SIZE; ++i)
+		{
+			Units[i] = MapDataWithUnitInstance(data.units[i]);
+		}
+	}
+	else
+	{
+		Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
+		Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
+		Units[2] = new Bishop("Bishop", 'B', Team::BLACK, 2, 0);
+		Units[3] = new Queen("Queen", 'Q', Team::BLACK, 3, 0);
+		Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
+		Units[5] = new Bishop("Bishop", 'B', Team::BLACK, 5, 0);
+		Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
+		Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
-	for (int i = 8; i < 16; i++)
-		Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
+		for (int i = 8; i < 16; i++)
+			Units[i] = new Pawn("Pawn", 'P', Team::BLACK, i - 8, 1);
 
-	for (int i = 16; i < 24; i++)
-		Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
+		for (int i = 16; i < 24; i++)
+			Units[i] = new Pawn("Pawn", 'p', Team::WHITE, i - 16, 6);
 
-	Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
-	Units[25] = new Unit("Knight", 'n', Team::WHITE, 1, 7);
-	Units[26] = new Unit("Bishop", 'b', Team::WHITE, 2, 7);
-	Units[27] = new Unit("Queen", 'q', Team::WHITE, 3, 7);
-	Units[28] = new Unit("King", 'k', Team::WHITE, 4, 7);
-	Units[29] = new Unit("Bishop", 'b', Team::WHITE, 5, 7);
-	Units[30] = new Unit("Knight", 'n', Team::WHITE, 6, 7);
-	Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
+		Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
+		Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
+		Units[26] = new Bishop("Bishop", 'b', Team::WHITE, 2, 7);
+		Units[27] = new Queen("Queen", 'q', Team::WHITE, 3, 7);
+		Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
+		Units[29] = new Bishop("Bishop", 'b', Team::WHITE, 5, 7);
+		Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
+		Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
 
+	}
 	// 킹 위치 추적
 	Kings[0] = Units[4]; // 흑 킹
 	Kings[1] = Units[28]; // 백 킹
@@ -93,6 +105,8 @@ Unit** Board::GetUnits()
 	return Units;
 }
 
+
+// "내가 이동을 마친 후" 체크메이트 검사니까 *****상대가 체크메이트 상태인지***** 검사하는 함수.
 bool Board::CheckMate(Team currentTeam)
 {
 	// 현재 팀과 반대 팀을 알아낸다
@@ -158,6 +172,46 @@ Team Board::GetGridInfo(int x, int y)
 	return Team::NONE;
 }
 
+Team Board::IToTeam(int i)
+{
+	return i == 0 ? Team::BLACK : i == 1 ? Team::WHITE : Team::NONE;
+}
+
+Unit* Board::MapDataWithUnitInstance(const UnitInfo& info)
+{
+	Unit* unit;
+	if (info.Name == "Rook") {
+		unit = new Rook(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Bishop") {
+		unit = new Bishop(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Knight") {
+		unit = new Knight(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Queen") {
+		unit = new Queen(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "King") {
+		unit = new King(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Pawn") {
+		unit = new Pawn(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else {
+		unit = new Unit("", ' ', Team::NONE, 0, 0);
+		std::cerr << "ERROR :: UnitInfo::MapDataWithUnitInstance()" << '\n';
+	}
+	return unit;
+}
+
+
 bool Board::CanMove(int x, int y)
 {
 	if (x < 0 || y < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT)
@@ -166,6 +220,8 @@ bool Board::CanMove(int x, int y)
 	return true;
 }
 
+
+//Attacker로부터 공격을 몸빵할 Team유닛이 있는지
 bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 {
 	int attackerX = Attacker.GetX();
@@ -198,6 +254,8 @@ bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 	return false; // 막을 방법 없음 -> 체크메이트
 }
 
+
+// 특정 좌표가 Team 유닛들에 의한 공격 대상인지 확인하는 함수
 bool Board::CanMoveUnits(int targetX, int targetY, Team Team)
 {
 	// 유닛들이 해당 위치를 공격할 수 있는지 확인

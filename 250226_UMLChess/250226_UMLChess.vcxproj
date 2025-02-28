@@ -130,12 +130,14 @@
     <ClCompile Include="250226_UMLChess.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="ChessSaveLoadManager.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="ChessData.h" />
     <ClInclude Include="ChessSaveLoadManager.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="Unit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

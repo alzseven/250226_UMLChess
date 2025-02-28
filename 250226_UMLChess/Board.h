@@ -5,6 +5,8 @@ class Rook;
 
 class Board
 {
+private:
+	Unit** units;
 public:
 	~Board()
 	{
@@ -16,9 +18,9 @@ public:
 	}
 public:
 	void Init();
-	
+
 	bool MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY);
-	
+
 
 	Unit** GetUnits();
 
@@ -26,7 +28,7 @@ public:
 	bool CheckMate(Team currentTeam);
 
 	Team GetGridInfo(int x, int y);
-	
+
 private:
 	bool CanMove(int x, int y);
 
@@ -38,15 +40,4 @@ private:
 
 
 	void FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attacker);
-
-private:
-	Unit** Units;
-
-	//현재 유닛검사 로직상 King은 담아두는게 좋을 것 같다
-	Unit* Kings[2] = { nullptr };
-
-	const int UNIT_SIZE = 32;
-	const int BOARD_HEIGHT = 8;
-	const int BOARD_WIDTH = 8;
-	bool bEndGame = false;
-};
+}

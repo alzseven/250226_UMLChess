@@ -24,3 +24,15 @@ protected:
 	int y;
 	bool bDead;
 };
+
+class Rook : public Unit
+{
+public:
+	Rook(std::string name, char symbol, Team team, int x, int y)
+		: Unit(name, symbol, team, x, y) 
+	{
+
+	}
+
+	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
+};

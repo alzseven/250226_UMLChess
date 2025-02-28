@@ -19,7 +19,6 @@ public:
 	
 	bool MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY);
 	
-
 	Unit** GetUnits();
 
 	// "내가 이동을 마친 후" 체크메이트 검사니까 *****상대가 체크메이트 상태인지***** 검사하는 함수.

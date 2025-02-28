@@ -148,5 +148,5 @@ bool King::CanMove(int x, int y, Board* chessBoard)
 	{
 
 	}
-	return true;
+	return false;
 }

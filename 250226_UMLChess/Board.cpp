@@ -10,7 +10,7 @@ void Board::Init(ChessSaveData data, bool canReadable)
 	Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
 	Units[2] = new Unit("Bishop", 'B', Team::BLACK, 2, 0);
 	Units[3] = new Unit("Queen", 'Q', Team::BLACK, 3, 0);
-	Units[4] = new Unit("King", 'K', Team::BLACK, 4, 0);
+	Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
 	Units[5] = new Unit("Bishop", 'B', Team::BLACK, 5, 0);
 	Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
 	Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
@@ -25,7 +25,7 @@ void Board::Init(ChessSaveData data, bool canReadable)
 	Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
 	Units[26] = new Unit("Bishop", 'b', Team::WHITE, 2, 7);
 	Units[27] = new Unit("Queen", 'q', Team::WHITE, 3, 7);
-	Units[28] = new Unit("King", 'k', Team::WHITE, 4, 7);
+	Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
 	Units[29] = new Unit("Bishop", 'b', Team::WHITE, 5, 7);
 	Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
 	Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
@@ -102,10 +102,11 @@ bool Board::CheckMate(Team currentTeam)
 {
 	// 현재 팀과 반대 팀을 알아낸다
 	Team oppositeTeam = (currentTeam == Team::WHITE) ? Team::BLACK : Team::WHITE;
-
+	int KingIndex = (int)oppositeTeam;
+	
 	// 1. 반대팀 킹의 위치 찾기
-	int kingX = Kings[(int)oppositeTeam]->GetX();
-	int kingY = Kings[(int)oppositeTeam]->GetY();
+	int kingX = Kings[KingIndex]->GetX();
+	int kingY = Kings[KingIndex]->GetY();
 
 	Unit* Attacker = nullptr;
 
@@ -126,10 +127,17 @@ bool Board::CheckMate(Team currentTeam)
 		int newX = kingX + dx[i];
 		int newY = kingY + dy[i];
 
-		//newX,newY가 맵 범위안쪽인지 검사하고, 다른 유닛들이 킹 8칸을 공격할 수 있는지 확인
-		//아군 유닛들이 한 칸이라도 킹 주변 8칸을 공격할 수 없다면 체크메이트가 아님
-		if (CanMove(newX, newY) && !CanMoveUnits(newX, newY, currentTeam))
-			return false;
+		//newX,newY가 맵 범위안쪽인지 검사하고
+		if (!CanMove(newX, newY))
+			continue;
+
+		//킹이 주변으로 이동 할 수 있고
+		if (Kings[KingIndex]->CanMove(newX, newY, this))
+		{
+			//다른 유닛들이 킹이 이동할 수 있는곳을 공격할 수 없다면 체크메이트가 아님
+			if (!CanMoveUnits(newX, newY, currentTeam))
+				return false;
+		}
 	}
 
 	// 3. 체크를 유발하는 아군 유닛들을 죽일 상대 유닛이 있는지, 이미 체크라면 무조건 공격자가 있기 때문에 null검사는 안함
@@ -215,16 +223,19 @@ bool Board::CanMove(int x, int y)
 //Attacker로부터 공격을 몸빵할 Team유닛이 있는지
 bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 {
+	if (Attacker.GetName() == "Knight" || Attacker.GetName() == "Pawn")
+		return false;
+
 	int attackerX = Attacker.GetX();
 	int attackerY = Attacker.GetY();
 
 	// 이동 방향 설정 (가로, 세로, 대각선) 대각선이라면 방향이 (1,1) (-1,-1), (1,-1), (-1,1)이 됨
 	int dx = (attackerX > kingX) ? 1 : (attackerX < kingX) ? -1 : 0;
 	int dy = (attackerY > kingY) ? 1 : (attackerY < kingY) ? -1 : 0;
-
+	
 	// 공격자가 직선 공격이 아니면 차단 불가능 (나이트, 폰은 경로 차단 불가)
 	if (dx == 0 && dy == 0) return false;
-
+	
 	// 킹과 공격자 사이의 칸을 탐색
 	int x = kingX + dx;
 	int y = kingY + dy;

@@ -1,25 +1,72 @@
-﻿#include <conio.h>
+﻿
+#pragma warning(disable:4996)
+#include <conio.h>
 #include <iostream>
-#include <string>
-
-#include "ChessSaveLoadManager.h"
-#include "ChessData.h"
-#include "Unit.h"
+#include <queue>
+#include <fstream>
+#include <windows.h>
+#define _CRT_SECURE_NO_WARNINGS
 
 using namespace std;
 
+class Unit;
 class GameManager;
 class Board;
 
-class Bishop : public Unit {
-public:
-	Bishop(string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
+enum class Team : int
+{
+	NONE = -1,
+	BLACK,
+	WHITE
+};
 
+
+class Unit
+{
+public:
+	Unit(string name = "", char symbol = '.', Team t = Team::WHITE, int x = 0, int y = 0)
+		: Name(name), Symbol(symbol), team(t), x(x), y(y), bDead(false) {
 	}
 
-	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
+	string GetName() const
+	{
+		return Name;
+	}
+	int GetX() {
+		return x;
+	}
+	int GetY() {
+		return y;
+	}
+	bool IsDead()
+	{
+		return bDead;
+	}
+	void Move(int x, int y)
+	{
+		this->x = x; this->y = y;
+	}
+	Team GetTeam() const
+	{
+		return team;
+	}
+	virtual bool CanMove(int x, int y, class Board*) { return true; };
+
+	void SetDead(bool bDead)
+	{
+		this->bDead = bDead;
+	}
+	char GetSymbol()
+	{
+		return Symbol;
+	}
+protected:
+	string Name;
+	char Symbol;
+	Team team;
+	int x;
+	int y;
+	bool bDead;
 };
 
 class Rook : public Unit
@@ -31,45 +78,6 @@ public:
 
 	}
 
-	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
-};
-
-
-class Knight : public Unit {
-public:
-	Knight(string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
-
-	}
-
-	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
-};
-class Queen : public Unit {
-public:
-	Queen(string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
-
-	}
-	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
-};
-class King : public Unit {
-public:
-	King(string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
-
-	}
-	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
-};
-class Pawn : public Unit {
-public:
-	Pawn(string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
-
-	}
 	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
 };
 class Board
@@ -84,49 +92,38 @@ public:
 		delete[] Units;
 	}
 public:
-	void Init(ChessSaveData data, bool canReadable)
+	void Init()
 	{
 		Units = new Unit * [UNIT_SIZE];
-		
-		if (canReadable)
-		{
-			for (int i=0; i < UNIT_SIZE; ++i)
-			{
-				Units[i] = MapDataWithUnitInstance(data.units[i]);
-			}
-		}
-		else
-		{
-			Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
-			Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
-			Units[2] = new Bishop("Bishop", 'B', Team::BLACK, 2, 0);
-			Units[3] = new Queen("Queen", 'Q', Team::BLACK, 3, 0);
-			Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
-			Units[5] = new Bishop("Bishop", 'B', Team::BLACK, 5, 0);
-			Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
-			Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
-			for (int i = 8; i < 16; i++)
-				Units[i] = new Pawn("Pawn", 'P', Team::BLACK, i - 8, 1);
+		Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
+		Units[1] = new Unit("Knight", 'N', Team::BLACK, 1, 0);
+		Units[2] = new Unit("Bishop", 'B', Team::BLACK, 2, 0);
+		Units[3] = new Unit("Queen", 'Q', Team::BLACK, 3, 0);
+		Units[4] = new Unit("King", 'K', Team::BLACK, 4, 0);
+		Units[5] = new Unit("Bishop", 'B', Team::BLACK, 5, 0);
+		Units[6] = new Unit("Knight", 'N', Team::BLACK, 6, 0);
+		Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
-			for (int i = 16; i < 24; i++)
-				Units[i] = new Pawn("Pawn", 'p', Team::WHITE, i - 16, 6);
+		for (int i = 8; i < 16; i++)
+			Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
 
-			Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
-			Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
-			Units[26] = new Bishop("Bishop", 'b', Team::WHITE, 2, 7);
-			Units[27] = new Queen("Queen", 'q', Team::WHITE, 3, 7);
-			Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
-			Units[29] = new Bishop("Bishop", 'b', Team::WHITE, 5, 7);
-			Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
-			Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
+		for (int i = 16; i < 24; i++)
+			Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
 
-		}
+		Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
+		Units[25] = new Unit("Knight", 'n', Team::WHITE, 1, 7);
+		Units[26] = new Unit("Bishop", 'b', Team::WHITE, 2, 7);
+		Units[27] = new Unit("Queen", 'q', Team::WHITE, 3, 7);
+		Units[28] = new Unit("King", 'k', Team::WHITE, 4, 7);
+		Units[29] = new Unit("Bishop", 'b', Team::WHITE, 5, 7);
+		Units[30] = new Unit("Knight", 'n', Team::WHITE, 6, 7);
+		Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
+
 		// 킹 위치 추적
 		Kings[0] = Units[4]; // 흑 킹
 		Kings[1] = Units[28]; // 백 킹
 	}
-	
 	bool MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY)
 	{
 		//맵 밖 입력인지 확인
@@ -253,46 +250,6 @@ public:
 		return Team::NONE;
 	}
 private:
-	Team IToTeam(int i)
-	{
-		return i == 0 ? Team::BLACK : i == 1 ? Team::WHITE : Team::NONE;
-	}
-	
-	Unit* MapDataWithUnitInstance(const UnitInfo& info)
-	{
-		Unit* unit;
-		if (info.Name == "Rook") {
-			unit = new Rook(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else if(info.Name == "Bishop") {
-			unit = new Bishop(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else if (info.Name == "Knight") {
-			unit = new Knight(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else if (info.Name == "Queen") {
-			unit = new Queen(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else if (info.Name == "King") {
-			unit = new King(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else if (info.Name == "Pawn") {
-			unit = new Pawn(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-			unit->SetDead(info.bDead);
-		}
-		else {
-			unit = new Unit("",' ',Team::NONE, 0, 0);
-			std::cerr << "ERROR :: UnitInfo::MapDataWithUnitInstance()" << '\n';
-		}
-		return unit;
-	}
-	
-	
 	bool CanMove(int x, int y)
 	{
 		if (x < 0 || y < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT)
@@ -411,140 +368,117 @@ bool Rook::CanMove(int x, int y, Board* chessBoard)
 	return true;
 }
 
-bool Bishop::CanMove(int x, int y, Board* chessBoard)
-{
-	// 현재 위치와 목표 위치 사이의 방향 설정
-	int dx = (GetX() == x) ? 0 : (GetX() > x) ? -1 : 1;  // x는 변하지 않으면 dx는 0
-	int dy = (GetY() == y) ? 0 : (GetY() > y) ? -1 : 1;  // y는 변하지 않으면 dy는 0
-
-	// 룩은 직선만 이동 가능하므로, x나 y 둘 중 하나만 0이 아니어야 한다.
-	if (dx == 0 || dy == 0) {
-		return false;  // 룩은 대각선으로 이동할 수 없기 때문에 dx, dy 모두 0이 아니면 이동 불가
-	}
-
-	// tempX, tempY는 룩의 현재 위치에서 목표 위치까지의 경로를 따라 이동할 변수
-	int tempX = GetX() + dx;
-	int tempY = GetY() + dy;
-
-	// 목표 위치까지 한 칸씩 이동하며 확인 목적지는 검사X
-	while (tempX != x || tempY != y) {
-		Team team = chessBoard->GetGridInfo(tempX, tempY);
-
-		// 경로에 다른 말이 있으면 이동 불가
-		if (team != Team::NONE) {
-			return false;
-		}
-
-		tempX += dx;
-		tempY += dy;
-	}
-
-	return true;
-}
-
-bool Queen::CanMove(int x, int y, Board* chessBoard)
-{
-	// 현재 위치와 목표 위치 사이의 방향 설정
-	int dx = (GetX() == x) ? 0 : (GetX() > x) ? -1 : 1;  // x는 변하지 않으면 dx는 0
-	int dy = (GetY() == y) ? 0 : (GetY() > y) ? -1 : 1;  // y는 변하지 않으면 dy는 0
-
-
-	// tempX, tempY는 룩의 현재 위치에서 목표 위치까지의 경로를 따라 이동할 변수
-	int tempX = GetX() + dx;
-	int tempY = GetY() + dy;
-
-	// 목표 위치까지 한 칸씩 이동하며 확인 목적지는 검사X
-	while (tempX != x || tempY != y) {
-		Team team = chessBoard->GetGridInfo(tempX, tempY);
-
-		// 경로에 다른 말이 있으면 이동 불가
-		if (team != Team::NONE) {
-			return false;
-		}
-
-		tempX += dx;
-		tempY += dy;
-	}
-
-	return true;
-}
-
-bool King::CanMove(int x, int y, Board* chessBoard)
-{
-	//TODO:
-	return false;
-}
-
-bool Knight::CanMove(int x, int y, Board* chessBoard)
-{
-	//TODO:
-	return false;
-}
-
-bool Pawn::CanMove(int x, int y, Board* chessBoard)
-{
-	//TODO:
-	return true;
-}
-
 class GameManager {
 private:
 	Board chessBoard;
 	Team CurrentTeam = Team::WHITE;
 
-	ChessSaveLoadManager fileManager;
-	ChessSaveData data;
-	
 	bool isGameRunning = false;
 
+	struct Command {
+		char Letter;
+		int Number;
+	};
+	queue<Command> Commands;
+	bool isReplaying = false;
 public:
-	GameManager()
-	{
-		
-	}
-
 	~GameManager()
 	{
-		Unit** units = chessBoard.GetUnits();
-		data.units = new UnitInfo[32];
-		for (int i=0; i<32; ++i)
+		if (isReplaying == false)
 		{
-			data.units[i].Name = units[i]->GetName();
-			data.units[i].Symbol = units[i]->GetSymbol();
-			data.units[i].team = units[i]->GetTeam() == Team::WHITE ? 1 : units[i]->GetTeam() == Team::BLACK ? 0 : -1;
-			data.units[i].x = units[i]->GetX();
-			data.units[i].y = units[i]->GetY();
+			Save("Replay.txt");
 		}
-		
-		if (fileManager.WriteFile("ChessData.txt", data))
+	}
+	void Replay()
+	{
+		while (isReplaying)
 		{
-			//TODO: Do something...
+			Command Sour, Dest;
+
+			Sour = Commands.front();
+			Commands.pop();
+
+			if (Commands.empty())
+			{
+				cout << "리플레이 끝" << endl;
+				break;
+			}
+			Dest = Commands.front();
+			Commands.pop();
+
+			ProcessInput(LetterToNumber(Sour.Letter), Sour.Number - 1, LetterToNumber(Dest.Letter), Dest.Number - 1);
+			system("cls");
+			Render();
+
+			Sleep(3000);
+			if (Commands.empty())
+			{
+				cout << "리플레이 끝" << endl;
+				break;
+			}
+		}
+	}
+	void Load(const char* filePath)
+	{
+		std::ifstream inFile(filePath);
+		if (!inFile)
+		{
+			std::cerr << "파일을 열 수 없습니다." << filePath << std::endl;
+			return;
+		}
+
+		while (!inFile.eof())
+		{
+			Command Cmd;
+			inFile >> Cmd.Letter;
+			inFile >> Cmd.Number;
+			Commands.push(Cmd);
+		}
+
+		inFile.close();
+	}
+	void Save(const char* filePath)
+	{
+		std::ofstream outFile(filePath);
+		if (!outFile)
+		{
+			std::cerr << "파일을 열 수 없습니다." << filePath << std::endl;
+			return;
+		}
+
+		while (!Commands.empty())
+		{
+			outFile << Commands.front().Letter << "\n";
+			outFile << Commands.front().Number << "\n";
+			Commands.pop();
+		}
+
+		outFile.close();
+	}
+
+	void Init() {
+
+		chessBoard.Init();
+		Render();
+
+		isGameRunning = true;
+
+		cout << "1. 리플레이, 2. 그냥플레이 " << endl;
+		int Input;
+		cin >> Input;
+		if (Input == 1)
+		{
+			isReplaying = true;
+			Load("Replay.txt");
 		}
 		else
-		{
-			std::cerr << "Something wrong happend during save..." << endl;
-		}
-
+			isReplaying = false;
 	}
-	
-	void Init() {
-		bool canReadable = fileManager.ReadFile("ChessData.txt", data);
-		chessBoard.Init(data, canReadable);
-		isGameRunning = true;
-		
-		// try {
-		// 	fileManager.ReadFile("chess_save.txt", data);
-		// }
-		
-
-
-	}
-
-
 
 	void Update() {
-		Render();
-		while (isGameRunning) {
+		Replay();
+
+		while (isGameRunning && isReplaying == false) {
 			char targetLetter, destLetter;
 			int targetNumber, destNumber;
 
@@ -554,12 +488,22 @@ public:
 				targetLetter = ' ';
 				cout << "움직이고 싶은 말이 시작하는 알파벳을 입력해주세요.\n";
 				cin >> targetLetter;
+				if (targetLetter == 'z')
+				{
+					isGameRunning = false;
+					break;
+				}
 				if (isValidInput(targetLetter)) {
 					break;
 				}
 				else {
 					cout << "잘못된 입력입니다. 다시 입력해주세요.\n";
 				}
+			}
+
+			if (isGameRunning == false)
+			{
+				break;
 			}
 
 			while (true) {
@@ -604,6 +548,7 @@ public:
 
 		}
 	}
+
 private:
 	int LetterToNumber(char letter) {
 		int result;
@@ -692,6 +637,15 @@ private:
 		else {
 			//TODO: Show result when something happened...
 
+			if (isReplaying == false)
+			{
+				Command Cmd = { targetX + 'a', targetY + 1 };
+				Commands.push(Cmd);
+				Cmd.Letter = destX + 'a';
+				Cmd.Number = destY + 1;
+				Commands.push(Cmd);
+			}
+
 			//정상적으로 MoveUnit이 호출되었다면
 			//상대가 체크메이트 상태인지 검사. 상대검사인데 매개변수로 currentTeam은 모호하다
 			bool bCheckMate = chessBoard.CheckMate(CurrentTeam);
@@ -728,8 +682,8 @@ private:
 			// Print the names of the pieces in the squares of this row.
 			for (int x = 0; x < BOARD_WIDTH; x++)
 			{
-				char symbol = ' ';
-				cout << " ";
+				char symbol = '  ';
+				cout << symbol;
 
 				Unit** units = chessBoard.GetUnits();
 				for (int i = 0; i < UNIT_SIZE; i++)
@@ -753,6 +707,7 @@ private:
 		cout << "   a    b    c    d    e    f    g    h" << endl;
 	}
 };
+
 
 int main() {
 	GameManager GameMgr;

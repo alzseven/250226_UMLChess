@@ -46,12 +46,18 @@ void Unit::Move(int x, int y)
 
 bool Unit::CanMove(int x, int y, class Board*)
 {
-    return true;
+    return false;
 }
 
 /*
 	Rook
 */
+Rook::Rook(std::string name, char symbol, Team team, int x, int y)
+	: Unit(name, symbol, team, x, y)
+{
+
+}
+
 bool Rook::CanMove(int x, int y, Board* chessBoard)
 {
 	// 현재 위치와 목표 위치 사이의 방향 설정
@@ -81,4 +87,49 @@ bool Rook::CanMove(int x, int y, Board* chessBoard)
 	}
 
 	return true;
+}
+
+/*
+	Knight
+*/
+Knight::Knight(std::string name, char symbol, Team team, int x, int y)
+	: Unit(name, symbol, team, x, y)
+{
+}
+
+bool Knight::CanMove(int x, int y, Board* chessBoard)
+{
+	//x,y는 맵밖인지 이미 검사되어 들어온다. 같은 팀인지 여부도
+	
+	//위쪽 왼쪽
+	if (GetX() - 1 == x && GetY() - 2 == y)
+		return true;
+	//위쪽 오른쪽
+	if (GetX() + 1 == x && GetY() - 2 == y)
+		return true;
+
+	//왼쪽 위쪽
+	if (GetX() - 2 == x && GetY() - 1 == y)
+		return true;
+	//왼쪽 아래쪽
+	if (GetX() - 2 == x && GetY() + 1 == y)
+		return true;
+
+	//오른쪽 위쪽
+	if (GetX() + 2 == x && GetY() - 1 == y)
+		return true;
+	//오른쪽 아래쪽
+	if (GetX() + 2 == x && GetY() + 1 == y)
+		return true;
+
+	//아래쪽 왼쪽
+	if (GetX() + 1 == x && GetY() + 2 == y)
+		return true;
+
+	//아래쪽 오른쪽
+	if (GetX() - 1 == x && GetY() + 2 == y)
+		return true;
+	
+	//다 못가면 못감
+	return false;
 }

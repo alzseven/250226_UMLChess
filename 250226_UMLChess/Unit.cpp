@@ -125,7 +125,6 @@ bool Knight::CanMove(int x, int y, Board* chessBoard)
 	//아래쪽 왼쪽
 	if (GetX() + 1 == x && GetY() + 2 == y)
 		return true;
-
 	//아래쪽 오른쪽
 	if (GetX() - 1 == x && GetY() + 2 == y)
 		return true;
@@ -144,9 +143,17 @@ King::King(std::string name, char symbol, Team team, int x, int y)
 
 bool King::CanMove(int x, int y, Board* chessBoard)
 {
-	if (GetX() - x == 1)
-	{
+	int dx = abs(x - GetX());
+	int dy = abs(y - GetY());
 
-	}
+	// 킹은 한 칸씩만 이동 가능 (상하좌우, 대각선)
+	if (dx > 1 || dy > 1)
+		return false;
+
+	//King의 팀과 "다르거나" 아무것도 없다면 이동 가능.
+	//King의 팀과 같다면 이동불가
+	if (chessBoard->GetGridInfo(x,y) == team)
+		return false;
+
 	return true;
 }

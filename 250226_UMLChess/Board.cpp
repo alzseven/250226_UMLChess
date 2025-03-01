@@ -7,10 +7,10 @@ void Board::Init()
 
 	Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
 	Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
-	Units[2] = new Unit("Bishop", 'B', Team::BLACK, 2, 0);
-	Units[3] = new Unit("Queen", 'Q', Team::BLACK, 3, 0);
+	Units[2] = new Bishop("Bishop", 'B', Team::BLACK, 2, 0);
+	Units[3] = new Queen("Queen", 'Q', Team::BLACK, 3, 0);
 	Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
-	Units[5] = new Unit("Bishop", 'B', Team::BLACK, 5, 0);
+	Units[5] = new Bishop("Bishop", 'B', Team::BLACK, 5, 0);
 	Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
 	Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
@@ -22,10 +22,10 @@ void Board::Init()
 
 	Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
 	Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
-	Units[26] = new Unit("Bishop", 'b', Team::WHITE, 2, 7);
-	Units[27] = new Unit("Queen", 'q', Team::WHITE, 3, 7);
+	Units[26] = new Bishop("Bishop", 'b', Team::WHITE, 2, 7);
+	Units[27] = new Queen("Queen", 'q', Team::WHITE, 3, 7);
 	Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
-	Units[29] = new Unit("Bishop", 'b', Team::WHITE, 5, 7);
+	Units[29] = new Bishop("Bishop", 'b', Team::WHITE, 5, 7);
 	Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
 	Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
 

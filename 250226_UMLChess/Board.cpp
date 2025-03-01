@@ -1,6 +1,5 @@
 #include "Board.h"
 #include "Unit.h"
-#include "Units.h"
 
 void Board::Init(ChessSaveData data, bool canReadable)
 {
@@ -15,11 +14,11 @@ void Board::Init(ChessSaveData data, bool canReadable)
 	Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
 	Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
-		for (int i = 8; i < 16; i++)
-			Units[i] = new Pawn("Pawn", 'P', Team::BLACK, i - 8, 1);
+	for (int i = 8; i < 16; i++)
+		Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
 
-		for (int i = 16; i < 24; i++)
-			Units[i] = new Pawn("Pawn", 'p', Team::WHITE, i - 16, 6);
+	for (int i = 16; i < 24; i++)
+		Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
 
 	Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
 	Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
@@ -30,39 +29,38 @@ void Board::Init(ChessSaveData data, bool canReadable)
 	Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
 	Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
 
-	}
-	// Å· À§Ä¡ ÃßÀû
-	Kings[0] = Units[4]; // Èæ Å·
-	Kings[1] = Units[28]; // ¹é Å·
+	// í‚¹ ìœ„ì¹˜ ì¶”ì 
+	Kings[0] = Units[4]; // í‘ í‚¹
+	Kings[1] = Units[28]; // ë°± í‚¹
 }
 
 bool Board::MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY)
 {
-	//¸Ê ¹Û ÀÔ·ÂÀÎÁö È®ÀÎ
+	//ï¿½ï¿½ ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	if (!CanMove(ToX, ToY))
 		return false;
 
-	// ÇØ´ç ÁÂÇ¥¿¡ Àû À¯´ÖÀÌ ÀÖ´ÂÁö È®ÀÎ
+	// ï¿½Ø´ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	int EnemyUnitIndex = -1;
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->GetX() == ToX && Units[i]->GetY() == ToY && !Units[i]->IsDead())
 		{
-			//°°ÀºÆÀÀ» Á×ÀÌ·Á°í ÇÏ´Â°æ¿ì
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½ï¿½ï¿½ ï¿½Ï´Â°ï¿½ï¿½
 			if (Units[i]->GetTeam() == Team)
 				return false;
 
-			EnemyUnitIndex = i;  // Àû À¯´ÖÀÌ ÀÖ´Â À§Ä¡ ÀúÀå
+			EnemyUnitIndex = i;  // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 		}
 	}
 
-	// À¯´ÖÀ» ½ÃÀÛ ÁÂÇ¥(FromX, FromY)¿¡¼­ Ã£À½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥(FromX, FromY)ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
 	int unitIndex = -1;
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->GetX() == FromX && Units[i]->GetY() == FromY && !Units[i]->IsDead())
 		{
-			//ÇöÀç ÆÀ°ú ´Ù¸¥À¯´ÖÀ» ¼±ÅÃÇÏ¸é false
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ false
 			if (Units[i]->GetTeam() != Team)
 				return false;
 
@@ -74,16 +72,16 @@ bool Board::MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY)
 	if (unitIndex == -1)
 		return false;
 
-	// ÇØ´ç À¯´ÖÀÌ ÀÌµ¿ÇÒ ¼ö ÀÖ´ÂÁö È®ÀÎ
+	// ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	if (!Units[unitIndex]->CanMove(ToX, ToY, this))
 		return false;
 
-	// À¯´Ö ÀÌµ¿
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
 	Units[unitIndex]->Move(ToX, ToY);
 
 	if (EnemyUnitIndex >= 0)
 	{
-		//ÀÌµ¿ÇÏ°íÀÚ Çß´ø À§Ä¡¿¡ ÀûÀÌ ÀÖ´Ù¸é Á×ÀÓ
+		//ï¿½Ìµï¿½ï¿½Ï°ï¿½ï¿½ï¿½ ï¿½ß´ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 		Unit* EnemyUnit = Units[EnemyUnitIndex];
 
 		EnemyUnit->SetDead(true);
@@ -97,28 +95,28 @@ Unit** Board::GetUnits()
 }
 
 
-// "³»°¡ ÀÌµ¿À» ¸¶Ä£ ÈÄ" Ã¼Å©¸ÞÀÌÆ® °Ë»ç´Ï±î *****»ó´ë°¡ Ã¼Å©¸ÞÀÌÆ® »óÅÂÀÎÁö***** °Ë»çÇÏ´Â ÇÔ¼ö.
+// "ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½Ä£ ï¿½ï¿½" Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ë»ï¿½Ï±ï¿½ *****ï¿½ï¿½ë°¡ Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½***** ï¿½Ë»ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½.
 bool Board::CheckMate(Team currentTeam)
 {
-	// ÇöÀç ÆÀ°ú ¹Ý´ë ÆÀÀ» ¾Ë¾Æ³½´Ù
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ý´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¾Æ³ï¿½ï¿½ï¿½
 	Team oppositeTeam = (currentTeam == Team::WHITE) ? Team::BLACK : Team::WHITE;
 	int KingIndex = (int)oppositeTeam;
 	
-	// 1. ¹Ý´ëÆÀ Å·ÀÇ À§Ä¡ Ã£±â
+	// 1. ï¿½Ý´ï¿½ï¿½ï¿½ Å·ï¿½ï¿½ ï¿½ï¿½Ä¡ Ã£ï¿½ï¿½
 	int kingX = Kings[KingIndex]->GetX();
 	int kingY = Kings[KingIndex]->GetY();
 
 	Unit* Attacker = nullptr;
 
-	// Ã¼Å©¸¦ À¯¹ßÇÏ´Â ¾Æ±º À¯´ÖÀ» Ä³½Ì (2°³ÀÌ»óÀÇ À¯´ÖÀÌ µ¿½Ã¿¡ Ã¼Å©¸¦ À¯¹ßÇÏ´ÂÀÏÀº ¾ø´Ù.)
+	// Ã¼Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Æ±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ (2ï¿½ï¿½ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¿ï¿½ Ã¼Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.)
 	FindAttackingUnit(kingX, kingY, currentTeam, &Attacker);
 
-	//°ø°ÝÀÚ°¡ ¾ø´Ù¸é Ã¼Å©»óÅÂµµ ¾Æ´Ô
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ Ã¼Å©ï¿½ï¿½ï¿½Âµï¿½ ï¿½Æ´ï¿½
 	if (Attacker == nullptr)
 		return false;
 
-	// 2. »ó´ë Å·ÀÌ Ã¼Å© »óÅÂ¸é, Å·À» ÀÌµ¿ÇÒ ¼ö ÀÖ´ÂÁö È®ÀÎ (ÇÇÇÒ ¼ö ÀÖÀ¸¸é Ã¼Å©¸ÞÀÌÆ® ¾Æ´Ô)
-	// Å·ÀÌ ÀÌµ¿ÇÒ ¼ö ÀÖ´Â 8°³ Ä­À» È®ÀÎ
+	// 2. ï¿½ï¿½ï¿½ Å·ï¿½ï¿½ Ã¼Å© ï¿½ï¿½ï¿½Â¸ï¿½, Å·ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Æ´ï¿½)
+	// Å·ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ 8ï¿½ï¿½ Ä­ï¿½ï¿½ È®ï¿½ï¿½
 	int dx[] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	int dy[] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 
@@ -127,33 +125,33 @@ bool Board::CheckMate(Team currentTeam)
 		int newX = kingX + dx[i];
 		int newY = kingY + dy[i];
 
-		//newX,newY°¡ ¸Ê ¹üÀ§¾ÈÂÊÀÎÁö °Ë»çÇÏ°í
+		//newX,newYï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Ï°ï¿½
 		if (!CanMove(newX, newY))
 			continue;
 
-		//Å·ÀÌ ÁÖº¯À¸·Î ÀÌµ¿ ÇÒ ¼ö ÀÖ°í
+		//Å·ï¿½ï¿½ ï¿½Öºï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö°ï¿½
 		if (Kings[KingIndex]->CanMove(newX, newY, this))
 		{
-			//´Ù¸¥ À¯´ÖµéÀÌ Å·ÀÌ ÀÌµ¿ÇÒ ¼ö ÀÖ´Â°÷À» °ø°ÝÇÒ ¼ö ¾ø´Ù¸é Ã¼Å©¸ÞÀÌÆ®°¡ ¾Æ´Ô
+			//ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ Å·ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´Â°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Æ´ï¿½
 			if (!CanMoveUnits(newX, newY, currentTeam))
 				return false;
 		}
 	}
 
-	// 3. Ã¼Å©¸¦ À¯¹ßÇÏ´Â ¾Æ±º À¯´ÖµéÀ» Á×ÀÏ »ó´ë À¯´ÖÀÌ ÀÖ´ÂÁö, ÀÌ¹Ì Ã¼Å©¶ó¸é ¹«Á¶°Ç °ø°ÝÀÚ°¡ ÀÖ±â ¶§¹®¿¡ null°Ë»ç´Â ¾ÈÇÔ
+	// 3. Ã¼Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Æ±ï¿½ ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½, ï¿½Ì¹ï¿½ Ã¼Å©ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nullï¿½Ë»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	int attackerX = Attacker->GetX();
 	int attackerY = Attacker->GetY();
 
-	// »ó´ë À¯´ÖÀÌ ¾Æ±º °ø°ÝÀÚ¸¦ ÀâÀ» ¼ö ÀÖ´ÂÁö È®ÀÎ
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	if (CanMoveUnits(attackerX, attackerY, oppositeTeam))
-		return false; // °ø°ÝÀÚ¸¦ ÀâÀ» ¼ö ÀÖÀ¸¸é Ã¼Å©¸ÞÀÌÆ® ¾Æ´Ô
+		return false; // ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Æ´ï¿½
 
-	// 4. °ø°ÝÀÚ¸¦ ÀâÀ» ¼ö ¾ø°í, ³²Àº¼ö´ÜÀº ¸ö»§
-	// »ó´ë À¯´ÖÀÌ ¾Æ±º °ø°ÝÀÚÀÇ °ø°Ý°æ·Î¸¦ ¸·À»¼ö ÀÖ´ÂÁö
+	// 4. ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý°ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½
 	if (!CanBlockCheck(kingX, kingY, *Attacker, oppositeTeam))
 		return true;
 
-	return false; // Ã¼Å© »óÅÂ°¡ ¾Æ´Ï°Å³ª, ¹æ¾î °¡´ÉÇÑ °æ¿ì
+	return false; // Ã¼Å© ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï°Å³ï¿½, ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 }
 
 Team Board::GetGridInfo(int x, int y)
@@ -163,11 +161,11 @@ Team Board::GetGridInfo(int x, int y)
 		if (Units[i]->IsDead())
 			continue;
 
-		//ÁÂÇ¥¿¡ ¹º°¡ ÀÖ´Ù¸é!
+		//ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ù¸ï¿½!
 		if (Units[i]->GetX() == x && Units[i]->GetY() == y)
 			return Units[i]->GetTeam();
 	}
-	//´Ùµ¹¾Ò´Âµ¥ ¾Ï°Íµµ ¾ø´Ù¸é
+	//ï¿½Ùµï¿½ï¿½Ò´Âµï¿½ ï¿½Ï°Íµï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½
 	return Team::NONE;
 }
 
@@ -220,7 +218,7 @@ bool Board::CanMove(int x, int y)
 }
 
 
-//Attacker·ÎºÎÅÍ °ø°ÝÀ» ¸ö»§ÇÒ TeamÀ¯´ÖÀÌ ÀÖ´ÂÁö
+//Attackerï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Teamï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½
 bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 {
 	if (Attacker.GetName() == "Knight" || Attacker.GetName() == "Pawn")
@@ -229,38 +227,38 @@ bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 	int attackerX = Attacker.GetX();
 	int attackerY = Attacker.GetY();
 
-	// ÀÌµ¿ ¹æÇâ ¼³Á¤ (°¡·Î, ¼¼·Î, ´ë°¢¼±) ´ë°¢¼±ÀÌ¶ó¸é ¹æÇâÀÌ (1,1) (-1,-1), (1,-1), (-1,1)ÀÌ µÊ
+	// ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ë°¢ï¿½ï¿½) ï¿½ë°¢ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (1,1) (-1,-1), (1,-1), (-1,1)ï¿½ï¿½ ï¿½ï¿½
 	int dx = (attackerX > kingX) ? 1 : (attackerX < kingX) ? -1 : 0;
 	int dy = (attackerY > kingY) ? 1 : (attackerY < kingY) ? -1 : 0;
 	
-	// °ø°ÝÀÚ°¡ Á÷¼± °ø°ÝÀÌ ¾Æ´Ï¸é Â÷´Ü ºÒ°¡´É (³ªÀÌÆ®, ÆùÀº °æ·Î Â÷´Ü ºÒ°¡)
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½Æ®, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½)
 	if (dx == 0 && dy == 0) return false;
 	
-	// Å·°ú °ø°ÝÀÚ »çÀÌÀÇ Ä­À» Å½»ö
+	// Å·ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä­ï¿½ï¿½ Å½ï¿½ï¿½
 	int x = kingX + dx;
 	int y = kingY + dy;
 
-	// °ø°ÝÀÚ·ÎºÎÅÍ ÇÑÄ­ ÇÑÄ­¾¿ È®ÀÎÇÔ.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ú·Îºï¿½ï¿½ï¿½ ï¿½ï¿½Ä­ ï¿½ï¿½Ä­ï¿½ï¿½ È®ï¿½ï¿½ï¿½ï¿½.
 	while (x != attackerX || y != attackerY)
 	{
-		// ÀÌ À§Ä¡·Î ÀÌµ¿ÇÒ ¼ö ÀÖ´Â À¯´ÖÀÌ ÀÖ´ÂÁö È®ÀÎ
+		// ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 		if (CanMoveUnits(x, y, Team))
 		{
-			return true; // °æ·Î¸¦ ¸·À» ¼ö ÀÖÀ¸¸é Ã¼Å©¸ÞÀÌÆ® ¾Æ´Ô
+			return true; // ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Æ´ï¿½
 		}
 
 		x += dx;
 		y += dy;
 	}
 
-	return false; // ¸·À» ¹æ¹ý ¾øÀ½ -> Ã¼Å©¸ÞÀÌÆ®
+	return false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -> Ã¼Å©ï¿½ï¿½ï¿½ï¿½Æ®
 }
 
 
-// Æ¯Á¤ ÁÂÇ¥°¡ Team À¯´Öµé¿¡ ÀÇÇÑ °ø°Ý ´ë»óÀÎÁö È®ÀÎÇÏ´Â ÇÔ¼ö
+// Æ¯ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ Team ï¿½ï¿½ï¿½Öµé¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 bool Board::CanMoveUnits(int targetX, int targetY, Team Team)
 {
-	// À¯´ÖµéÀÌ ÇØ´ç À§Ä¡¸¦ °ø°ÝÇÒ ¼ö ÀÖ´ÂÁö È®ÀÎ
+	// ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->IsDead() || Units[i]->GetTeam() != Team)
@@ -268,11 +266,11 @@ bool Board::CanMoveUnits(int targetX, int targetY, Team Team)
 
 		if (Units[i]->CanMove(targetX, targetY, this))
 		{
-			return true; // °ø°ÝÇÒ ¼ö ÀÖ´Â À¯´ÖÀÌ ÀÖÀ½
+			return true; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		}
 	}
 
-	return false; // °ø°ÝÇÒ ¼ö ¾ø´Â °æ¿ì
+	return false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 }
 
 void Board::FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attacker)
@@ -284,7 +282,7 @@ void Board::FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attac
 
 		if (Units[i]->CanMove(kingX, kingY, this))
 		{
-			// »ó´ë Å·ÀÇ ÁÂÇ¥¸¦ À§ÇùÇÏ´Â À¯´ÖÀ» attacker¿¡ ³ÖÀ½
+			// ï¿½ï¿½ï¿½ Å·ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ attackerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			*attacker = Units[i];
 			break;
 		}

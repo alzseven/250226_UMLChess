@@ -5,8 +5,6 @@ class Rook;
 
 class Board
 {
-private:
-	Unit** units;
 public:
 	~Board()
 	{
@@ -18,25 +16,36 @@ public:
 	}
 public:
 	void Init();
-
+	
 	bool MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY);
-
+	
 	Unit** GetUnits();
 
-	// "³»°¡ ÀÌµ¿À» ¸¶Ä£ ÈÄ" Ã¼Å©¸ŞÀÌÆ® °Ë»ç´Ï±î *****»ó´ë°¡ Ã¼Å©¸ŞÀÌÆ® »óÅÂÀÎÁö***** °Ë»çÇÏ´Â ÇÔ¼ö.
+	// "ë‚´ê°€ ì´ë™ì„ ë§ˆì¹œ í›„" ì²´í¬ë©”ì´íŠ¸ ê²€ì‚¬ë‹ˆê¹Œ *****ìƒëŒ€ê°€ ì²´í¬ë©”ì´íŠ¸ ìƒíƒœì¸ì§€***** ê²€ì‚¬í•˜ëŠ” í•¨ìˆ˜.
 	bool CheckMate(Team currentTeam);
 
 	Team GetGridInfo(int x, int y);
-
+	
 private:
 	bool CanMove(int x, int y);
 
-	//Attacker·ÎºÎÅÍ °ø°İÀ» ¸ö»§ÇÒ TeamÀ¯´ÖÀÌ ÀÖ´ÂÁö
+	//Attackerë¡œë¶€í„° ê³µê²©ì„ ëª¸ë¹µí•  Teamìœ ë‹›ì´ ìˆëŠ”ì§€
 	bool CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team);
 
-	// Æ¯Á¤ ÁÂÇ¥°¡ Team À¯´Öµé¿¡ ÀÇÇÑ °ø°İ ´ë»óÀÎÁö È®ÀÎÇÏ´Â ÇÔ¼ö
+	// íŠ¹ì • ì¢Œí‘œê°€ Team ìœ ë‹›ë“¤ì— ì˜í•œ ê³µê²© ëŒ€ìƒì¸ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
 	bool CanMoveUnits(int targetX, int targetY, Team Team);
 
 
 	void FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attacker);
-}
+
+private:
+	Unit** Units;
+
+	//í˜„ì¬ ìœ ë‹›ê²€ì‚¬ ë¡œì§ìƒ Kingì€ ë‹´ì•„ë‘ëŠ”ê²Œ ì¢‹ì„ ê²ƒ ê°™ë‹¤
+	Unit* Kings[2] = { nullptr };
+
+	const int UNIT_SIZE = 32;
+	const int BOARD_HEIGHT = 8;
+	const int BOARD_WIDTH = 8;
+	bool bEndGame = false;
+};

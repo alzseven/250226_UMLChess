@@ -133,6 +133,11 @@ bool Knight::CanMove(int x, int y, Board* chessBoard)
 	return false;
 }
 
+Bishop::Bishop(std::string name, char symbol, Team team, int x, int y)
+	: Unit(name, symbol, team, x, y)
+{
+}
+
 
 bool Bishop::CanMove(int x, int y, Board* chessBoard)
 {

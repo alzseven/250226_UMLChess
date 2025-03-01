@@ -1,7 +1,7 @@
 #include "Board.h"
 #include "Unit.h"
 
-void Board::Init(ChessSaveData data, bool canReadable)
+void Board::Init()
 {
 	Units = new Unit * [UNIT_SIZE];
 
@@ -167,45 +167,6 @@ Team Board::GetGridInfo(int x, int y)
 	}
 	//�ٵ��Ҵµ� �ϰ͵� ���ٸ�
 	return Team::NONE;
-}
-
-Team Board::IToTeam(int i)
-{
-	return i == 0 ? Team::BLACK : i == 1 ? Team::WHITE : Team::NONE;
-}
-
-Unit* Board::MapDataWithUnitInstance(const UnitInfo& info)
-{
-	Unit* unit;
-	if (info.Name == "Rook") {
-		unit = new Rook(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else if (info.Name == "Bishop") {
-		unit = new Bishop(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else if (info.Name == "Knight") {
-		unit = new Knight(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else if (info.Name == "Queen") {
-		unit = new Queen(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else if (info.Name == "King") {
-		unit = new King(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else if (info.Name == "Pawn") {
-		unit = new Pawn(info.Name, info.Symbol, IToTeam(info.team), info.x, info.y);
-		unit->SetDead(info.bDead);
-	}
-	else {
-		unit = new Unit("", ' ', Team::NONE, 0, 0);
-		std::cerr << "ERROR :: UnitInfo::MapDataWithUnitInstance()" << '\n';
-	}
-	return unit;
 }
 
 

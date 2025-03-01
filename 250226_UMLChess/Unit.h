@@ -50,11 +50,8 @@ public:
 
 class Queen : public Unit {
 public:
-	Queen(std::string name, char symbol, Team team, int x, int y)
-		: Unit(name, symbol, team, x, y)
-	{
-
-	}
+	Queen(std::string name, char symbol, Team team, int x, int y);
+	
 	virtual bool CanMove(int x, int y, class Board* chessBoard) override;
 };
 

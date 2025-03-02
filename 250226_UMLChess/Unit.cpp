@@ -241,3 +241,35 @@ bool King::CanMove(int x, int y, Board* chessBoard)
 
 	return true;
 }
+/*
+	Pawn
+*/
+Pawn::Pawn(std::string name, char symbol, Team team, int x, int y)
+	: Unit(name, symbol, team, x, y)
+{
+}
+
+bool Pawn::CanMove(int x, int y, Board* chessBoard)
+{
+	//x,y?? ??????? ??? ????? ???��?. ???? ?????? ???��?
+
+	Team enemyTeam = team != Team::NONE ? team == Team::BLACK ? Team::WHITE : Team::BLACK : Team::NONE;
+	int dy = team != Team::NONE ? team == Team::BLACK ? 1 : -1 : 0;
+	
+	if (chessBoard->GetGridInfo(x,y) == enemyTeam)
+	{
+		if (y == GetY() + dy && (x == GetX() + 1 || x == GetX() - 1))
+		{
+			return true;
+		}
+	}
+	
+	if (x != GetX()) return false;
+
+	//TODO:
+	if ((team == Team::BLACK && GetY() == 1) || (team == Team::WHITE && GetY()==6))
+	{
+		return y == GetY() + dy + dy && chessBoard->GetGridInfo(x,GetY() + dy) == Team::NONE && chessBoard->GetGridInfo(x,y) == Team::NONE;
+	}
+	return y == GetY() + dy && chessBoard->GetGridInfo(x, GetY() + dy) == Team::NONE;
+}

@@ -27,7 +27,6 @@ public:
 	//TODO: OR save on end of the game
 	/*~GameManager()
 	{
-		cout << "Out" << endl;
 		if (isReplaying == false)
 		{
 			Save("Replay.txt");

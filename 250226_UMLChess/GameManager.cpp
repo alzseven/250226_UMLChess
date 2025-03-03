@@ -160,6 +160,10 @@ void GameManager::Update() {
 		Render();
 
 	}
+	if (isReplaying == false)
+	{
+		Save("Replay.txt");
+	}
 }
 
 int GameManager::LetterToNumber(char letter) {

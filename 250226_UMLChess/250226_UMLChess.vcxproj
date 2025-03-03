@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="250226_UMLChess.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="ChessSaveLoadManager.cpp" />
     <ClCompile Include="GameManager.cpp" />

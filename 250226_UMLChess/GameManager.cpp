@@ -70,22 +70,50 @@ void GameManager::Save(const char* filePath)
 }
 
 void GameManager::Init() {
-
+	data.units = new UnitInfo[32];
+	bool hasSaveData = chessSaveLoadManager.ReadFile("ChessData.txt", data);
 	chessBoard.Init();
-	Render();
-
-	isGameRunning = true;
-
-	cout << "1. 리플레이, 2. 그냥플레이 " << endl;
-	int Input;
-	cin >> Input;
-	if (Input == 1)
+	bool isInputValid = false;
+	while (isInputValid == false)
 	{
-		isReplaying = true;
-		Load("Replay.txt");
+		cout << (hasSaveData ? "세이브 데이터 발견" : "세이브 데이터 없음") << endl;
+		Render();
+		isGameRunning = true;
+		cout << "1. 리플레이, 2. 그냥플레이" << (hasSaveData ? ", 3. 이어플레이" : "") << endl;
+		
+		int input = -1;
+
+		cin >> input;
+		switch (input)
+		{
+		case 1:
+			isReplaying = true;
+			Load("Replay.txt");
+			isInputValid = true;
+			break;
+		case 2:
+			isReplaying = false;
+			chessBoard.Init();
+			system("cls");
+			Render();
+			isInputValid = true;
+			break;
+		case 3:
+			if (hasSaveData)
+			{
+				isReplaying = false;
+				currentTeam = (Team)data.currentTeam;
+				chessBoard.Init(data);
+				system("cls");
+				Render();
+				isInputValid = true;
+				break;
+			}
+		default:
+			cout << "잘못된 입력입니다. 다시 입력해주세요." << endl;
+			break;
+		}
 	}
-	else
-		isReplaying = false;
 }
 
 void GameManager::Update() {
@@ -95,7 +123,7 @@ void GameManager::Update() {
 		char targetLetter, destLetter;
 		int targetNumber, destNumber;
 
-		cout << (CurrentTeam == Team::WHITE ? "백팀" : "흑팀") << " 플레이어의 턴입니다.\n";
+		cout << (currentTeam == Team::WHITE ? "백팀" : "흑팀") << " 플레이어의 턴입니다.\n";
 
 		while (true) {
 			targetLetter = ' ';
@@ -104,6 +132,24 @@ void GameManager::Update() {
 			if (targetLetter == 'z')
 			{
 				isGameRunning = false;
+				// TODO: Prevent replay save during usual gameplay
+				// TODO: After load from previous game, need to put commands to replay command container
+				isReplaying = true;
+
+				UnitInfo* info = new UnitInfo[32];
+				Unit** currentUnits = chessBoard.GetUnits();
+				for (int i = 0; i < 32; ++i)
+				{
+					info[i] = UnitInfo{
+						currentUnits[i]->GetName(), currentUnits[i]->GetSymbol(),
+						(currentUnits[i]->GetTeam() != Team::NONE ? currentUnits[i]->GetTeam() == Team::BLACK ? 0 : 1 : -1),
+						currentUnits[i]->GetX(), currentUnits[i]->GetY(), currentUnits[i]->IsDead()
+					};
+				}
+				data.currentTeam = currentTeam != Team::NONE ? currentTeam == Team::BLACK ? 0 : 1 : -1;
+				data.units = info;
+
+				chessSaveLoadManager.WriteFile("ChessData.txt", data);
 				break;
 			}
 			if (isValidInput(targetLetter)) {
@@ -243,7 +289,7 @@ bool GameManager::isValidInput(char input) {
 
 void GameManager::ProcessInput(int targetX, int targetY, int destX, int destY)
 {
-	bool result = chessBoard.MoveUnit(targetX, targetY, CurrentTeam, destX, destY);
+	bool result = chessBoard.MoveUnit(targetX, targetY, currentTeam, destX, destY);
 	if (result == false) {
 		// Input values are valid, but cannot move to destination...
 		cout << "해당 좌표로 이동할수 없습니다. 다시 입력해주세요. 아무키나 입력";
@@ -263,17 +309,18 @@ void GameManager::ProcessInput(int targetX, int targetY, int destX, int destY)
 
 		//정상적으로 MoveUnit이 호출되었다면
 		//상대가 체크메이트 상태인지 검사. 상대검사인데 매개변수로 currentTeam은 모호하다
-		bool bCheckMate = chessBoard.CheckMate(CurrentTeam);
+		bool bCheckMate = chessBoard.CheckMate(currentTeam);
 		if (bCheckMate)
 		{
-			cout << "체크메이트! " << (CurrentTeam == Team::WHITE ? "백팀" : "흑팀") << "의 승리입니다!" << endl;
+			//TODO: Need Render
+			cout << "체크메이트! " << (currentTeam == Team::WHITE ? "백팀" : "흑팀") << "의 승리입니다!" << endl;
 			cout << "아무키나 누르면 종료됩니다" << endl;
 			isGameRunning = false;
 			_getch();
 		}
 
 		//Change team when input is valid
-		CurrentTeam = CurrentTeam == Team::WHITE ? Team::BLACK : Team::WHITE;
+		currentTeam = currentTeam == Team::WHITE ? Team::BLACK : Team::WHITE;
 	}
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "ChessData.h"
-class Unit;
-class Rook;
+#include "Unit.h"
 
 class Board
 {
@@ -15,7 +14,7 @@ public:
 		delete[] Units;
 	}
 public:
-	void Init();
+	void Init(ChessSaveData data = ChessSaveData());
 	
 	bool MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY);
 	
@@ -38,6 +37,7 @@ private:
 
 	void FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attacker);
 
+	Unit* MapDataWithUnitInstance(const UnitInfo& info);
 private:
 	Unit** Units;
 

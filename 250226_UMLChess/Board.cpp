@@ -1,34 +1,44 @@
+#include <iostream>
 #include "Board.h"
-#include "Unit.h"
 
-void Board::Init()
+void Board::Init(ChessSaveData saveData)
 {
 	Units = new Unit * [UNIT_SIZE];
 
-	Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
-	Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
-	Units[2] = new Bishop("Bishop", 'B', Team::BLACK, 2, 0);
-	Units[3] = new Queen("Queen", 'Q', Team::BLACK, 3, 0);
-	Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
-	Units[5] = new Bishop("Bishop", 'B', Team::BLACK, 5, 0);
-	Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
-	Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
+	if (saveData.units != nullptr)
+	{
+		for (int i=0; i < UNIT_SIZE; ++i)
+		{
+			Units[i] = MapDataWithUnitInstance(saveData.units[i]);
+		}
+	}
+	else
+	{
+		Units[0] = new Rook("Rook", 'R', Team::BLACK, 0, 0);
+		Units[1] = new Knight("Knight", 'N', Team::BLACK, 1, 0);
+		Units[2] = new Bishop("Bishop", 'B', Team::BLACK, 2, 0);
+		Units[3] = new Queen("Queen", 'Q', Team::BLACK, 3, 0);
+		Units[4] = new King("King", 'K', Team::BLACK, 4, 0);
+		Units[5] = new Bishop("Bishop", 'B', Team::BLACK, 5, 0);
+		Units[6] = new Knight("Knight", 'N', Team::BLACK, 6, 0);
+		Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
-	for (int i = 8; i < 16; i++)
-		Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
+		for (int i = 8; i < 16; i++)
+			Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
 
-	for (int i = 16; i < 24; i++)
-		Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
+		for (int i = 16; i < 24; i++)
+			Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
 
-	Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
-	Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
-	Units[26] = new Bishop("Bishop", 'b', Team::WHITE, 2, 7);
-	Units[27] = new Queen("Queen", 'q', Team::WHITE, 3, 7);
-	Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
-	Units[29] = new Bishop("Bishop", 'b', Team::WHITE, 5, 7);
-	Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
-	Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
-
+		Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
+		Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
+		Units[26] = new Bishop("Bishop", 'b', Team::WHITE, 2, 7);
+		Units[27] = new Queen("Queen", 'q', Team::WHITE, 3, 7);
+		Units[28] = new King("King", 'k', Team::WHITE, 4, 7);
+		Units[29] = new Bishop("Bishop", 'b', Team::WHITE, 5, 7);
+		Units[30] = new Knight("Knight", 'n', Team::WHITE, 6, 7);
+		Units[31] = new Rook("Rook", 'r', Team::WHITE, 7, 7);
+	}
+	
 	// 킹 위치 추적
 	Kings[0] = Units[4]; // 흑 킹
 	Kings[1] = Units[28]; // 백 킹
@@ -248,4 +258,38 @@ void Board::FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attac
 			break;
 		}
 	}
+}
+
+Unit* Board::MapDataWithUnitInstance(const UnitInfo& info)
+{
+	Unit* unit;
+	if (info.Name == "Rook") {
+		unit = new Rook(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Bishop") {
+		unit = new Bishop(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Knight") {
+		unit = new Knight(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Queen") {
+		unit = new Queen(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "King") {
+		unit = new King(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else if (info.Name == "Pawn") {
+		unit = new Unit(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit->SetDead(info.bDead);
+	}
+	else {
+		unit = new Unit("", ' ', Team::NONE, 0, 0);
+		std::cerr << "ERROR :: UnitInfo::MapDataWithUnitInstance()" << '\n';
+	}
+	return unit;
 }

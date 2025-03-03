@@ -7,6 +7,8 @@
 #include <windows.h>
 #include "Unit.h"
 #include "Board.h"
+#include "ChessSaveLoadManager.h"
+#include "ChessData.h"
 #define _CRT_SECURE_NO_WARNINGS
 
 using namespace std;
@@ -14,7 +16,7 @@ using namespace std;
 class GameManager {
 private:
 	Board chessBoard;
-	Team CurrentTeam = Team::WHITE;
+	Team currentTeam = Team::WHITE;
 	bool isGameRunning = false;
 	struct Command {
 		char Letter;
@@ -22,6 +24,8 @@ private:
 	};
 	queue<Command> Commands;
 	bool isReplaying = false;
+	ChessSaveLoadManager chessSaveLoadManager;
+	ChessSaveData data;
 public:
 	//TODO: Save on Console exit(WinAPI)
 	//TODO: OR save on end of the game

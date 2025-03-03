@@ -26,6 +26,8 @@ bool ChessSaveLoadManager::WriteFile(const std::string& fileName, const ChessSav
             gameData.units[i].x << " " << gameData.units[i].y << " " << gameData.units[i].bDead << "\n";
     }
     
+    outFile << gameData.currentTeam << "\n";
+
     outFile.close();
     return true;
 }
@@ -47,6 +49,8 @@ bool ChessSaveLoadManager::ReadFile(const std::string& fileName, ChessSaveData& 
         inFile >> gameData.units[i].bDead;
     }
     
+    inFile >> gameData.currentTeam;
+
     inFile.close();
     return true;
     

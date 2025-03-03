@@ -20,6 +20,8 @@ struct UnitInfo
 
 struct ChessSaveData
 {
+	ChessSaveData():units(),currentTeam(-1){}
+	int currentTeam;
 	UnitInfo* units;
 };
 

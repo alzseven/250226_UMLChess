@@ -267,9 +267,9 @@ bool Pawn::CanMove(int x, int y, Board* chessBoard)
 	if (x != GetX()) return false;
 
 	//TODO:
-	if ((team == Team::BLACK && GetY() == 1) || (team == Team::WHITE && GetY()==6))
+	if (((team == Team::BLACK && GetY() == 1) || (team == Team::WHITE && GetY()==6)) && y == GetY() + dy + dy )
 	{
-		return y == GetY() + dy + dy && chessBoard->GetGridInfo(x,GetY() + dy) == Team::NONE && chessBoard->GetGridInfo(x,y) == Team::NONE;
+		return y == GetY() + dy + dy && chessBoard->GetGridInfo(x, GetY() + dy) == Team::NONE && chessBoard->GetGridInfo(x, y) == Team::NONE;
 	}
 	return y == GetY() + dy && chessBoard->GetGridInfo(x, GetY() + dy) == Team::NONE;
 }

@@ -24,10 +24,10 @@ void Board::Init(ChessSaveData saveData)
 		Units[7] = new Rook("Rook", 'R', Team::BLACK, 7, 0);
 
 		for (int i = 8; i < 16; i++)
-			Units[i] = new Unit("Pawn", 'P', Team::BLACK, i - 8, 1);
+			Units[i] = new Pawn("Pawn", 'P', Team::BLACK, i - 8, 1);
 
 		for (int i = 16; i < 24; i++)
-			Units[i] = new Unit("Pawn", 'p', Team::WHITE, i - 16, 6);
+			Units[i] = new Pawn("Pawn", 'p', Team::WHITE, i - 16, 6);
 
 		Units[24] = new Rook("Rook", 'r', Team::WHITE, 0, 7);
 		Units[25] = new Knight("Knight", 'n', Team::WHITE, 1, 7);
@@ -287,7 +287,7 @@ Unit* Board::MapDataWithUnitInstance(const UnitInfo& info)
 		unit->SetDead(info.bDead);
 	}
 	else if (info.Name == "Pawn") {
-		unit = new Unit(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
+		unit = new Pawn(info.Name, info.Symbol, (Team)info.team, info.x, info.y);
 		unit->SetDead(info.bDead);
 	}
 	else {

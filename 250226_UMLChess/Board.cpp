@@ -46,31 +46,31 @@ void Board::Init(ChessSaveData saveData)
 
 bool Board::MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY)
 {
-	//�� �� �Է����� Ȯ��
+	//맵 밖 입력인지 확인
 	if (!CanMove(ToX, ToY))
 		return false;
 
-	// �ش� ��ǥ�� �� ������ �ִ��� Ȯ��
+	// 해당 좌표에 적 유닛이 있는지 확인
 	int EnemyUnitIndex = -1;
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->GetX() == ToX && Units[i]->GetY() == ToY && !Units[i]->IsDead())
 		{
-			//�������� ���̷��� �ϴ°��
+			//같은팀을 죽이려고 하는경우
 			if (Units[i]->GetTeam() == Team)
 				return false;
 
-			EnemyUnitIndex = i;  // �� ������ �ִ� ��ġ ����
+			EnemyUnitIndex = i;  // 적 유닛이 있는 위치 저장
 		}
 	}
 
-	// ������ ���� ��ǥ(FromX, FromY)���� ã��
+	// 유닛을 시작 좌표(FromX, FromY)에서 찾음
 	int unitIndex = -1;
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->GetX() == FromX && Units[i]->GetY() == FromY && !Units[i]->IsDead())
 		{
-			//���� ���� �ٸ������� �����ϸ� false
+			//현재 팀과 다른유닛을 선택하면 false
 			if (Units[i]->GetTeam() != Team)
 				return false;
 
@@ -82,16 +82,16 @@ bool Board::MoveUnit(int FromX, int FromY, Team Team, int ToX, int ToY)
 	if (unitIndex == -1)
 		return false;
 
-	// �ش� ������ �̵��� �� �ִ��� Ȯ��
+	// 해당 유닛이 이동할 수 있는지 확인
 	if (!Units[unitIndex]->CanMove(ToX, ToY, this))
 		return false;
 
-	// ���� �̵�
+	// 유닛 이동
 	Units[unitIndex]->Move(ToX, ToY);
 
 	if (EnemyUnitIndex >= 0)
 	{
-		//�̵��ϰ��� �ߴ� ��ġ�� ���� �ִٸ� ����
+		//이동하고자 했던 위치에 적이 있다면 죽임
 		Unit* EnemyUnit = Units[EnemyUnitIndex];
 
 		EnemyUnit->SetDead(true);
@@ -105,28 +105,38 @@ Unit** Board::GetUnits()
 }
 
 
-// "���� �̵��� ��ģ ��" üũ����Ʈ �˻�ϱ� *****��밡 üũ����Ʈ ��������***** �˻��ϴ� �Լ�.
 bool Board::CheckMate(Team currentTeam)
 {
-	// ���� ���� �ݴ� ���� �˾Ƴ���
+	// 현재 팀과 반대 팀을 알아낸다
 	Team oppositeTeam = (currentTeam == Team::WHITE) ? Team::BLACK : Team::WHITE;
 	int KingIndex = (int)oppositeTeam;
 	
-	// 1. �ݴ��� ŷ�� ��ġ ã��
+	// 1. 반대팀 킹의 위치 찾기
 	int kingX = Kings[KingIndex]->GetX();
 	int kingY = Kings[KingIndex]->GetY();
 
 	Unit* Attacker = nullptr;
 
-	// üũ�� �����ϴ� �Ʊ� ������ ĳ�� (2���̻��� ������ ���ÿ� üũ�� �����ϴ����� ����.)
+	// 체크를 유발하는 아군 유닛을 캐싱 (2개이상의 유닛이 동시에 체크를 유발하는일은 없다.)
 	FindAttackingUnit(kingX, kingY, currentTeam, &Attacker);
 
-	//�����ڰ� ���ٸ� üũ���µ� �ƴ�
+	//공격자가 없다면 체크상태도 아님
 	if (Attacker == nullptr)
 		return false;
 
-	// 2. ��� ŷ�� üũ ���¸�, ŷ�� �̵��� �� �ִ��� Ȯ�� (���� �� ������ üũ����Ʈ �ƴ�)
-	// ŷ�� �̵��� �� �ִ� 8�� ĭ�� Ȯ��
+	int attackerX = Attacker->GetX();
+	int attackerY = Attacker->GetY();
+
+	//2. 상대 킹이 아군 공격자를 잡을 수 있다면
+	if ( Kings[ KingIndex ]->CanMove(attackerX, attackerY, this) )
+	{
+		//상대 킹이 아군 공격자를 잡을 수 있는데 해당 위치를 아군 유닛들이 공격하지 못할경우
+		if ( !CanMoveUnits(attackerX, attackerY, currentTeam) )
+			return false;
+	}
+
+	// 3. 상대 킹이 체크 상태면, 킹을 이동할 수 있는지 확인 (피할 수 있으면 체크메이트 아님)
+	// 킹이 이동할 수 있는 8개 칸을 확인
 	int dx[] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	int dy[] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 
@@ -135,33 +145,29 @@ bool Board::CheckMate(Team currentTeam)
 		int newX = kingX + dx[i];
 		int newY = kingY + dy[i];
 
-		//newX,newY�� �� ������������ �˻��ϰ�
+		//맵 밖 입력인지 확인
 		if (!CanMove(newX, newY))
 			continue;
 
-		//ŷ�� �ֺ����� �̵� �� �� �ְ�
+		//킹이 공격자로부터 피할 수 있다면
 		if (Kings[KingIndex]->CanMove(newX, newY, this))
 		{
-			//�ٸ� ���ֵ��� ŷ�� �̵��� �� �ִ°��� ������ �� ���ٸ� üũ����Ʈ�� �ƴ�
+			//아군 유닛들이 한 칸이라도 킹 주변 8칸을 공격할 수 없다면 체크메이트가 아님
 			if (!CanMoveUnits(newX, newY, currentTeam))
 				return false;
 		}
 	}
 
-	// 3. üũ�� �����ϴ� �Ʊ� ���ֵ��� ���� ��� ������ �ִ���, �̹� üũ��� ������ �����ڰ� �ֱ� ������ null�˻�� ����
-	int attackerX = Attacker->GetX();
-	int attackerY = Attacker->GetY();
-
-	// ��� ������ �Ʊ� �����ڸ� ���� �� �ִ��� Ȯ��
+	// 상대 유닛이 아군 공격자를 잡을 수 있는지 확인
 	if (CanMoveUnits(attackerX, attackerY, oppositeTeam))
-		return false; // �����ڸ� ���� �� ������ üũ����Ʈ �ƴ�
+		return false; // 공격자를 잡을 수 있으면 체크메이트 아님
 
-	// 4. �����ڸ� ���� �� ����, ���������� ����
-	// ��� ������ �Ʊ� �������� ���ݰ�θ� ������ �ִ���
+	// 4. 공격자를 잡을 수 없고, 남은수단은 몸빵
+	// 상대 유닛이 아군 공격자의 공격경로를 막을수 있는지
 	if (!CanBlockCheck(kingX, kingY, *Attacker, oppositeTeam))
 		return true;
 
-	return false; // üũ ���°� �ƴϰų�, ��� ������ ���
+	return false; // 체크 상태가 아니거나, 방어 가능한 경우
 }
 
 Team Board::GetGridInfo(int x, int y)
@@ -171,11 +177,11 @@ Team Board::GetGridInfo(int x, int y)
 		if (Units[i]->IsDead())
 			continue;
 
-		//��ǥ�� ���� �ִٸ�!
+		//좌표에 뭔가 있다면!
 		if (Units[i]->GetX() == x && Units[i]->GetY() == y)
 			return Units[i]->GetTeam();
 	}
-	//�ٵ��Ҵµ� �ϰ͵� ���ٸ�
+	//다돌았는데 암것도 없다면
 	return Team::NONE;
 }
 
@@ -189,7 +195,6 @@ bool Board::CanMove(int x, int y)
 }
 
 
-//Attacker�κ��� ������ ������ Team������ �ִ���
 bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 {
 	if (Attacker.GetName() == "Knight" || Attacker.GetName() == "Pawn")
@@ -198,38 +203,36 @@ bool Board::CanBlockCheck(int kingX, int kingY, Unit& Attacker, Team Team)
 	int attackerX = Attacker.GetX();
 	int attackerY = Attacker.GetY();
 
-	// �̵� ���� ���� (����, ����, �밢��) �밢���̶�� ������ (1,1) (-1,-1), (1,-1), (-1,1)�� ��
+	// 이동 방향 설정 (가로, 세로, 대각선) 대각선이라면 방향이 (1,1) (-1,-1), (1,-1), (-1,1)이 됨
 	int dx = (attackerX > kingX) ? 1 : (attackerX < kingX) ? -1 : 0;
 	int dy = (attackerY > kingY) ? 1 : (attackerY < kingY) ? -1 : 0;
 	
-	// �����ڰ� ���� ������ �ƴϸ� ���� �Ұ��� (����Ʈ, ���� ��� ���� �Ұ�)
+	// 공격자가 직선 공격이 아니면 차단 불가능 (나이트, 폰은 경로 차단 불가)
 	if (dx == 0 && dy == 0) return false;
 	
-	// ŷ�� ������ ������ ĭ�� Ž��
+	// 킹과 공격자 사이의 칸을 탐색
 	int x = kingX + dx;
 	int y = kingY + dy;
 
-	// �����ڷκ��� ��ĭ ��ĭ�� Ȯ����.
+	// 공격자로부터 한칸 한칸씩 확인함.
 	while (x != attackerX || y != attackerY)
 	{
-		// �� ��ġ�� �̵��� �� �ִ� ������ �ִ��� Ȯ��
+		// 이 위치로 이동할 수 있는 유닛이 있는지 확인
 		if (CanMoveUnits(x, y, Team))
 		{
-			return true; // ��θ� ���� �� ������ üũ����Ʈ �ƴ�
+			return true; // 경로를 막을 수 있으면 체크메이트 아님
 		}
 
 		x += dx;
 		y += dy;
 	}
 
-	return false; // ���� ��� ���� -> üũ����Ʈ
+	return false; // 막을 방법 없음 -> 체크메이트
 }
 
-
-// Ư�� ��ǥ�� Team ���ֵ鿡 ���� ���� ������� Ȯ���ϴ� �Լ�
 bool Board::CanMoveUnits(int targetX, int targetY, Team Team)
 {
-	// ���ֵ��� �ش� ��ġ�� ������ �� �ִ��� Ȯ��
+	// 유닛들이 해당 위치를 공격할 수 있는지 확인
 	for (int i = 0; i < UNIT_SIZE; i++)
 	{
 		if (Units[i]->IsDead() || Units[i]->GetTeam() != Team)
@@ -237,11 +240,11 @@ bool Board::CanMoveUnits(int targetX, int targetY, Team Team)
 
 		if (Units[i]->CanMove(targetX, targetY, this))
 		{
-			return true; // ������ �� �ִ� ������ ����
+			return true;// 공격할 수 있는 유닛이 있음
 		}
 	}
 
-	return false; // ������ �� ���� ���
+	return false; // 공격할 수 없는 경우
 }
 
 void Board::FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attacker)
@@ -253,7 +256,7 @@ void Board::FindAttackingUnit(int kingX, int kingY, Team enemyTeam, Unit** attac
 
 		if (Units[i]->CanMove(kingX, kingY, this))
 		{
-			// ��� ŷ�� ��ǥ�� �����ϴ� ������ attacker�� ����
+			// 상대 킹의 좌표를 위협하는 유닛을 attacker에 넣음
 			*attacker = Units[i];
 			break;
 		}

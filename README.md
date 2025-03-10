@@ -1,6 +1,6 @@
 # UMLChess
 
-Console based c++ chess game for UML pratice
+Console-based c++ chess game for UML practice
 
 
 ## License
